@@ -26,14 +26,14 @@ class Session {
     map['challenge_id'] = this.challenge_id;
   }
 
-  factory Session.fromJson(List<dynamic> json) {
+  factory Session.fromJson(Map<String , dynamic> json) {
     return Session(
-        id: json[0]['id'],
-        number: json[0]['number'],
-        points: json[0]['points'],
-        week_number: json[0]['week_number'],
-        unLock_date: json[0]['unLock_date'],
-        complete_state: json[0]['complete_state'],
-        challenge_id: json[0]['challenge_id']);
+        id: json['id'],
+        number: json['number'],
+        points: json['points'],
+        week_number: json['week_number'],
+        unLock_date: json['unLock_date'],
+        complete_state: json['complete_state'],
+        challenge_id: json['challenge_id']);
   }
 }

@@ -26,14 +26,14 @@ class Challenge {
     map['user_id'] = this.user_id;
   }
 
-  factory Challenge.fromJson(List<dynamic> json) {
+  factory Challenge.fromJson(Map<String , dynamic> json) {
     return Challenge(
-        id: json[0]['id'],
-        hero_instagram: json[0]['hero_instagram'],
-        hero_target: json[0]['hero_target'],
-        points: json[0]['points'],
-        in_leader_board: json[0]['in_leader_board'],
-        is_verefied: json[0]['is_verefied'],
-        user_id: json[0]['user_id']);
+        id: json['id'],
+        hero_instagram: json['hero_instagram'],
+        hero_target: json['hero_target'],
+        points: json['points'],
+        in_leader_board: json['in_leader_board'],
+        is_verefied: json['is_verefied'],
+        user_id: json['user_id']);
   }
 }

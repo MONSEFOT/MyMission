@@ -22,12 +22,12 @@ class Task {
     map['user_id'] = this.user_id;
   }
 
-  factory Task.fromJson(List<dynamic> json) {
+  factory Task.fromJson(Map<String , dynamic> json ) {
     return Task(
-        id: json[0]['id'],
-        title: json[0]['title'],
-        description: json[0]['description'],
-        complete_state: json[0]['complete_state'],
-        user_id: json[0]['user_id']);
+        id: json['id'],
+        title: json['title'],
+        description: json['description'],
+        complete_state: json['complete_state'],
+        user_id: json['user_id']);
   }
 }

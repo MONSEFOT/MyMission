@@ -22,12 +22,12 @@ class BaseTask {
     map['session_id'] = this.session_id;
   }
 
-  factory BaseTask.fromJson(List<dynamic> json) {
+  factory BaseTask.fromJson(Map<String , dynamic> json) {
     return BaseTask(
-        id: json[0]['id'],
-        title: json[0]['title'],
-        points: json[0]['points'],
-        complete_state: json[0]['complete_state'],
-        session_id: json[0]['session_id']);
+        id: json['id'],
+        title: json['title'],
+        points: json['points'],
+        complete_state: json['complete_state'],
+        session_id: json['session_id']);
   }
 }

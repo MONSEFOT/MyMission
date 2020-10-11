@@ -23,14 +23,14 @@ class User {
     map['role'] = this.role;
   }
 
-  factory User.fromJson(List<dynamic> json) {
+  factory User.fromJson(Map<String , dynamic> json) {
     return User(
-        id: json[0]['id'],
-        token: json[0]['token'],
-        display_name: json[0]['display_name'],
-        email: json[0]['email'],
-        password: json[0]['password'],
-        role: json[0]['role'],
+        id: json['id'],
+        token: json['token'],
+        display_name: json['display_name'],
+        email: json['email'],
+        password: json['password'],
+        role: json['role'],
         );
   }
 }
