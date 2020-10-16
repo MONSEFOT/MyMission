@@ -1,12 +1,8 @@
 
 import 'package:flutter/material.dart';
 
-import 'Controllers/User/panel_users_controller.dart';
-import 'Models/User/user.dart';
+
 void main() async {
-  bool result = await PanelUsersController().delete_user(User(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9teW1pc3Npb24uZXBpenkuY29tXC9wdWJsaWNcL2FwaVwvbG9naW4iLCJpYXQiOjE2MDI0MTM0NTcsImV4cCI6MTYwMjQ5OTg1NywibmJmIjoxNjAyNDEzNDU3LCJqdGkiOiIxSXVFSWQ2MWxNUUQ3ekR6Iiwic3ViIjoxLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.bvqPJ5WRxzU1WqqqAtm4gX9_tHN-ajjCapZZZuA8uKA", display_name: null, email: null, password: null, role: 'owner'),3);
-  print(result);
-  
   runApp(MyApp());
 }
 

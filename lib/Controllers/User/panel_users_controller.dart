@@ -1,12 +1,29 @@
+/*
+ *this is a logic class of the panel users cotroller in mymission ,
+  all operations that owner can use it in mymission's panel users controller , you can find them here.
+  that's three operations : 
+    1-search for users
+    2-delete a user
+    3-ban a user 
+ */
+
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:mymission_full_version/Models/User/user.dart';
 import 'package:mymission_full_version/Request/api_provider.dart';
 
 class PanelUsersController extends ControllerMVC{
 
-
-  // ignore: non_constant_identifier_names
-  Future<List<User>> search_for_user(User owner , String searchKeyWord) async {
+  /*
+   * search for users operation takes two arguments as parameters:
+   * {
+   *    first : owner , because this operation is allowed just for owners
+   *    second : searchKeyWord , it's very important for the operation.
+   * 
+   *  the method post a request with owner token and searcch key word , 
+   *  in the response will return a list of users they containe a search key word in thier display_name column
+   * } 
+   */
+  Future<List<User>> search_for_users(User owner , String searchKeyWord) async {
     if(owner.role == "owner"){
       List<User> users = [];
       Map<String , dynamic> response = await ApiProvider().get('searchForUser?api_password=xuqhBhc8KkajZbhHoViT&display_name=$searchKeyWord' , true , owner.token);
@@ -20,11 +37,16 @@ class PanelUsersController extends ControllerMVC{
     }
   }
 
+  /*
+   *  delete user operation is the same as a search for users operation,
+   *  it takes two arguments the first is the owner and the second is the user that we will delete him
+   *  the method will return true if the operation was done and false if isn't.      
+   */
   Future<bool> delete_user(User owner , int user_id )async{
     if(owner.role == "owner"){
-      Map<String , String> body = {
+      var body = {
         "api_password": "xuqhBhc8KkajZbhHoViT",
-        "user_id": "$user_id",
+        "user_id": user_id,
       };
       Map<String , dynamic> response = await ApiProvider().post("deleteUser", body , true , owner.token);
       if(response['status'] == true){
@@ -33,4 +55,30 @@ class PanelUsersController extends ControllerMVC{
     }
     return false;
   }
+
+  /*
+   * in this method, the owner can ban any user that he wants,
+   * just pass an owner object with a token, and the user that he wants to ban him.
+   * if the operation has done the method returns true and if not, it returns false    
+   */
+  Future<bool> ban_user(User owner , User user)async {
+    if(owner.role == "owner"){
+      var body = {
+        "api_password": "xuqhBhc8KkajZbhHoViT",
+        "id": user.id.toString(),
+        "display_name" : user.display_name,
+        "social_id" : user.social_id,
+        "password" : user.password,
+        "role" : user.role,
+        "is_banned" : user.is_banned.toString(),
+      };
+
+      Map<String , dynamic> response = await ApiProvider().post('updateUser', body, true , owner.token);
+      return (response['update'] == 1) ? true : false;
+      
+    }
+    return false;
+  }
+
+  
 }

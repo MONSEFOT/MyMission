@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 
 class User {
   int id;
-  String token , display_name, email, password, role;
+  String token , display_name, social_id, password, role;
+  bool is_banned;
 
   User({
     this.id,
     @required this.token,
     @required this.display_name,
-    @required this.email,
+    @required this.social_id,
     @required this.password,
     @required this.role,
+    @required this.is_banned,
   });
 
   Map<String , dynamic> toMap(){
@@ -18,9 +20,10 @@ class User {
     map['id'] = this.id;
     map['token'] = this.token;
     map['display_name'] = this.display_name;
-    map['email'] = this.email;
+    map['email'] = this.social_id;
     map['password'] = this.password;
     map['role'] = this.role;
+    map['is_banned'] = this.is_banned;
   }
 
   factory User.fromJson(Map<String , dynamic> json) {
@@ -28,9 +31,10 @@ class User {
         id: json['id'],
         token: json['token'],
         display_name: json['display_name'],
-        email: json['email'],
+        social_id: json['social_id'],
         password: json['password'],
         role: json['role'],
-        );
+        is_banned:  (json['is_banned'] == 1)? true : false,
+);
   }
 }

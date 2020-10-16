@@ -45,26 +45,21 @@ class ApiProvider extends ControllerMVC {
       var response = await ApiProvider().post('login' , body);
    } 
    */
-  post(String apiName , Map<String , String> body , [bool authorization = false , String token]) async {
+  post(String apiName , Map<String , dynamic> body , [bool authorization = false , String token]) async {
     final response = await http.post(
       apiURL + apiName,
       headers: (authorization) ? <String, String>{
         'Accept': "application/json",
-        'Cookie': cookie,
         'Authorization': "Bearer $token",
       } : <String, String>{
         'Accept': "application/json",
-        'Cookie': cookie,
       },
       body: body,
     );
 
     if(response.statusCode == 200){
-      Map<String , dynamic> body = convert.jsonDecode(response.body);
-      return body;
-    }
-    else{
-      return "Something error : ${response.statusCode}";
+      Map<String , dynamic> result = convert.jsonDecode(response.body);
+      return result;
     }
   }
 
@@ -79,7 +74,7 @@ class ApiProvider extends ControllerMVC {
   
     var json = response['user'];
 
-    User user = new User.fromJson(json);
+    User user = new User.fromJson(json);  
 
    }   
    */
@@ -88,16 +83,14 @@ class ApiProvider extends ControllerMVC {
       apiURL + apiName , 
       headers: (authorization) ? <String, String>{
         'Accept': 'application/json',
-        'Cookie': cookie,
         'Authorization': "Bearer $token",
       } : <String, String>{
         'Accept': "application/json",
-        'Cookie': cookie,
       },
     );
     if(response.statusCode == 200){
-      Map<String , dynamic> body = convert.jsonDecode(response.body);
-      return body;
+      Map<String , dynamic> result = convert.jsonDecode(response.body);
+      return result;
     }
     else{
       return "Something error : ${response.statusCode}";
