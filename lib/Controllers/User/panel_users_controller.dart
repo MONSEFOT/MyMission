@@ -10,6 +10,7 @@
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:mymission_full_version/Models/User/user.dart';
 import 'package:mymission_full_version/Request/api_provider.dart';
+import 'package:mymission_full_version/Resources/string.dart';
 
 class PanelUsersController extends ControllerMVC{
 
@@ -26,7 +27,7 @@ class PanelUsersController extends ControllerMVC{
   Future<List<User>> search_for_users(User owner , String searchKeyWord) async {
     if(owner.role == "owner"){
       List<User> users = [];
-      Map<String , dynamic> response = await ApiProvider().get('searchForUser?api_password=xuqhBhc8KkajZbhHoViT&display_name=$searchKeyWord' , true , owner.token);
+      Map<String , dynamic> response = await ApiProvider().get('$searchForUser?api_password=$api_password&display_name=$searchKeyWord' , true , owner.token);
       
       List<dynamic> resultList = response['users'];
       for(int index = 0 ; index < resultList.length ; index++){
@@ -45,10 +46,10 @@ class PanelUsersController extends ControllerMVC{
   Future<bool> delete_user(User owner , int user_id )async{
     if(owner.role == "owner"){
       var body = {
-        "api_password": "xuqhBhc8KkajZbhHoViT",
+        "api_password": api_password,
         "user_id": user_id,
       };
-      Map<String , dynamic> response = await ApiProvider().post("deleteUser", body , true , owner.token);
+      Map<String , dynamic> response = await ApiProvider().post(deleteUser , body , true , owner.token);
       if(response['status'] == true){
         return true;
       }
@@ -64,7 +65,7 @@ class PanelUsersController extends ControllerMVC{
   Future<bool> ban_user(User owner , User user)async {
     if(owner.role == "owner"){
       var body = {
-        "api_password": "xuqhBhc8KkajZbhHoViT",
+        "api_password": api_password,
         "id": user.id.toString(),
         "display_name" : user.display_name,
         "social_id" : user.social_id,
@@ -73,7 +74,7 @@ class PanelUsersController extends ControllerMVC{
         "is_banned" : user.is_banned.toString(),
       };
 
-      Map<String , dynamic> response = await ApiProvider().post('updateUser', body, true , owner.token);
+      Map<String , dynamic> response = await ApiProvider().post(updateUser, body, true , owner.token);
       return (response['update'] == 1) ? true : false;
       
     }
