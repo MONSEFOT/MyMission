@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "184622527514",
+    "firebase_url": "https://mymission-8471b.firebaseio.com",
+    "project_id": "mymission-8471b",
+    "storage_bucket": "mymission-8471b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184622527514:android:6e64a9785c8f8cfdb1cda3",
+        "android_client_info": {
+          "package_name": "de.thegameoflife.mymission_full_version"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "184622527514-7r79t46ojbt6fbt3unplmsdtm2o3j09u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.thegameoflife.mymission_full_version",
+            "certificate_hash": "b36345a04ff7bbdda7f3381c1de8a508144d2c67"
+          }
+        },
+        {
+          "client_id": "184622527514-uaulmdtm80usnjq66i5rktivrgmrk0kv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7QvP6KsT2_IoPW9N-Duei12pkG4FVGsM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "184622527514-uaulmdtm80usnjq66i5rktivrgmrk0kv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "184622527514-cf2k01uu6ejav1ktlha3dmnni7cnkg2c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "de.thegameoflife.mymissionIOS"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

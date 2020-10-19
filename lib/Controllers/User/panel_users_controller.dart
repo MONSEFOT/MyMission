@@ -27,7 +27,7 @@ class PanelUsersController extends ControllerMVC{
   Future<List<User>> search_for_users(User owner , String searchKeyWord) async {
     if(owner.role == "owner"){
       List<User> users = [];
-      Map<String , dynamic> response = await ApiProvider().get('$searchForUser?api_password=$api_password&display_name=$searchKeyWord' , true , owner.token);
+      Map<String , dynamic> response = await ApiProvider().get('$searchForUser?api_password=$api_password&display_name=$searchKeyWord&with_social_id=false' , true , owner.token);
       
       List<dynamic> resultList = response['users'];
       for(int index = 0 ; index < resultList.length ; index++){

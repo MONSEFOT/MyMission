@@ -30,7 +30,11 @@ dependencies:
   cupertino_icons: ^1.0.0
   mvc_pattern: ^6.4.0
   http: ^0.12.2
-
+  firebase_auth: ^0.16.1
+  google_sign_in: ^4.5.1
+  apple_sign_in: ^0.1.0
+  shared_preferences: ^0.5.12+2
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
