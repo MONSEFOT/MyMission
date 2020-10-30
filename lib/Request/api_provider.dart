@@ -18,7 +18,7 @@
  * }
  */
 
-import 'dart:convert' as convert;
+import 'dart:convert' ;
 
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:http/http.dart' as http;
@@ -47,18 +47,20 @@ class ApiProvider extends ControllerMVC {
    */
   post(String apiName , Map<String , dynamic> body , [bool authorization = false , String token]) async {
     final response = await http.post(
-      apiURL + apiName,
+      Uri.encodeFull(apiURL + apiName),
       headers: (authorization) ? <String, String>{
+        "Content-type": "application/json",
         'Accept': "application/json",
         'Authorization': "Bearer $token",
       } : <String, String>{
+        "Content-type": "application/json",
         'Accept': "application/json",
       },
-      body: body,
+      body: json.encode(body),
     );
 
     if(response.statusCode == 200){
-      Map<String , dynamic> result = convert.jsonDecode(response.body);
+      Map<String , dynamic> result = jsonDecode(response.body);
       return result;
     }
   }
@@ -80,16 +82,18 @@ class ApiProvider extends ControllerMVC {
    */
   get(String apiName , [bool authorization = false , String token]) async {
     http.Response response = await http.get(
-      apiURL + apiName , 
+      Uri.decodeFull(apiURL + apiName) , 
       headers: (authorization) ? <String, String>{
+        "Content-type": "application/json",
         'Accept': 'application/json',
         'Authorization': "Bearer $token",
       } : <String, String>{
+        "Content-type": "application/json",
         'Accept': "application/json",
       },
     );
     if(response.statusCode == 200){
-      Map<String , dynamic> result = convert.jsonDecode(response.body);
+      Map<String , dynamic> result = jsonDecode(response.body);
       return result;
     }
     else{

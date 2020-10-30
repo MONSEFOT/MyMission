@@ -10,7 +10,7 @@ class Session {
     @required this.number,
     @required this.points,
     @required this.week_number,
-    @required this.unLock_date,
+    this.unLock_date,
     @required this.complete_state,
     @required this.challenge_id,
   });
@@ -24,6 +24,7 @@ class Session {
     map['unLock_date'] = this.unLock_date;
     map['complete_state'] = this.complete_state;
     map['challenge_id'] = this.challenge_id;
+    return map;
   }
 
   factory Session.fromJson(Map<String , dynamic> json) {
@@ -32,8 +33,9 @@ class Session {
         number: json['number'],
         points: json['points'],
         week_number: json['week_number'],
-        unLock_date: json['unLock_date'],
-        complete_state: json['complete_state'],
-        challenge_id: json['challenge_id']);
+        unLock_date: DateTime.parse(json['unLock_date'] + ' 00:00:00.000'),
+        complete_state: (json['complete_state'] == "true") ? true : false,
+        challenge_id: json['challenge_id'],
+      );
   }
 }

@@ -20,6 +20,7 @@ class BaseTask {
     map['points'] = this.points;
     map['complete_state'] = this.complete_state;
     map['session_id'] = this.session_id;
+    return map;
   }
 
   factory BaseTask.fromJson(Map<String , dynamic> json) {
@@ -27,7 +28,7 @@ class BaseTask {
         id: json['id'],
         title: json['title'],
         points: json['points'],
-        complete_state: json['complete_state'],
+        complete_state: (json['complete_state'] == "true")? true : false,
         session_id: json['session_id']);
   }
 }

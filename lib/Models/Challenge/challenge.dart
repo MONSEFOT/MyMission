@@ -4,6 +4,7 @@ class Challenge {
   int id, points, user_id;
   String hero_instagram, hero_target;
   bool is_verefied, in_leader_board;
+  DateTime created_at , updated_at;
 
   Challenge({
     this.id,
@@ -13,6 +14,8 @@ class Challenge {
     @required this.in_leader_board,
     @required this.is_verefied,
     @required this.user_id,
+    @required this.created_at,
+    @required this.updated_at,
   });
 
   Map<String , dynamic> toMap(){
@@ -24,6 +27,9 @@ class Challenge {
     map['in_leader_board'] = this.in_leader_board;
     map['is_verefied'] = this.is_verefied;
     map['user_id'] = this.user_id;
+    map['created_at'] = this.created_at;
+    map['updated_at'] = this.updated_at;
+    return map;
   }
 
   factory Challenge.fromJson(Map<String , dynamic> json) {
@@ -32,8 +38,11 @@ class Challenge {
         hero_instagram: json['hero_instagram'],
         hero_target: json['hero_target'],
         points: json['points'],
-        in_leader_board: json['in_leader_board'],
-        is_verefied: json['is_verefied'],
-        user_id: json['user_id']);
+        in_leader_board: (json['in_leader_board'] == "true") ? true : false,
+        is_verefied: (json['is_verefied'] == "true") ? true : false,
+        user_id: json['user_id'],
+        created_at: DateTime.parse(json['created_at']),
+        updated_at: DateTime.parse(json['updated_at']),
+        );
   }
 }

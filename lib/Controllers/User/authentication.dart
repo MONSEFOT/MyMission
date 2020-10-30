@@ -1,3 +1,9 @@
+/*
+ *this class is for users authentication in mymission app ,
+ *that is many methods in the class some of them is private an some is globale.
+ *you can authenticate with goole accoute or apple account in this app and the methods bellow is for that  
+ */
+
 import 'dart:io';
 
 import 'package:apple_sign_in/apple_sign_in.dart';
@@ -13,6 +19,10 @@ class Authentication extends ControllerMVC {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  /*
+   * this methods is for validete if the user registred in the database of not ,
+   * using get api request with pass the social id of the firebase account 
+   */
   Future<User> userValidate(String socialID) async {
     User user;
     Map<String, dynamic> response = await ApiProvider().get("$searchForUser?api_password=$api_password&social_id=$socialID&with_social_id=" + true.toString());
@@ -30,6 +40,9 @@ class Authentication extends ControllerMVC {
    
   }
 
+  /*
+   *this method is for login in api and get the access token into the result  
+   */
   Future<User> userLogin(FirebaseUser user) async {
     if (user.email != null && user.uid != null) {
       var body = {
@@ -48,6 +61,11 @@ class Authentication extends ControllerMVC {
     }
   }
 
+  /*
+   *this method is for register a uer into the database with api , 
+   *it takes three values into the request (display name , social id and the password)
+   *using a post api request 
+   */
   Future<User>  userRegister(FirebaseUser user) async {
     if (user.displayName != null && user.email != null && user.uid != null) {
       var body = {
@@ -70,31 +88,42 @@ class Authentication extends ControllerMVC {
     }
   }
 
-  Future<bool> _tokenRegister(String accountSocialId, String token) async {
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
+  /*
+   *when you log into the app the app get your access token and regiter it into you phone ,
+   after that when you close the application and rerun it the app automaticly log into the app with the old access token , 
+   you shoulden't log in again   
+   */
+  Future<bool> _tokenRegister(String key, String token) async {
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
-    bool isSaved = await sharedPreferences.setString(accountSocialId, token);
+    bool isSaved = await sharedPreferences.setString(key, token);
 
     return isSaved;
   }
 
-  Future<String> _getToken(String accountSocialId) async {
+  Future<String> _getToken(String key) async {
     final SharedPreferences sharedPreferences =  await SharedPreferences.getInstance();
 
-    String token = await sharedPreferences.getString(accountSocialId);
+    String token = await sharedPreferences.getString(key);
 
     return token;
   }
 
-  Future<User> _findUserWithToken(String token) async {
+  /*
+  *automatically login end
+  */
+
+  /*
+   * this method is return a user accourding to the access token 
+   */
+  Future<User> findUserWithToken(String token) async {
     var body = {
       "api_password": api_password,
-      "response": "true",
+      "response": true,
     };
     User user;
 
-    Map<String, dynamic> response = await ApiProvider().post(findUserWithToken, body , true , token);
+    Map<String, dynamic> response = await ApiProvider().post(findAUserWithToken, body , true , token);
 
     user = User.fromJson(response['user']);
 
@@ -104,11 +133,14 @@ class Authentication extends ControllerMVC {
     }
   }
 
+  /*
+   *this method for token virefication , it's return the tonken's user when the token is available   
+   */
   Future<User> tokenValidator() async {
     try {
       String token = await _getToken(tokenRegisterKey);
       if (token != null) {
-        User userDB = await _findUserWithToken(token);
+        User userDB = await findUserWithToken(token);
 
 
         if (userDB.token != null) {
@@ -127,6 +159,7 @@ class Authentication extends ControllerMVC {
   Future<User> appleIdSignIn() async {
     User userDB;
     try {
+
       AuthorizationResult appleResult = await AppleSignIn.performRequests([
         AppleIdRequest(requestedScopes: [Scope.email, Scope.fullName])
       ]);
@@ -170,6 +203,7 @@ class Authentication extends ControllerMVC {
     }
   }
 
+  /// Sign in with google
   Future<User> googleSignIn() async {
     try {
       // hold the instance of the authenticated user
@@ -209,6 +243,7 @@ class Authentication extends ControllerMVC {
           
           _tokenRegister(tokenRegisterKey, userDB.token);
 
+
           return userDB;
         }
       }
@@ -216,9 +251,14 @@ class Authentication extends ControllerMVC {
       throw error;
     }
   }
-}
 
-_checkInternetConnection() async {
+  Future<bool> logOut()async{
+    bool state = false;
+    await _auth.signOut().then((_) => state =  true);
+    return state;
+  }
+
+  Future<bool> checkInternetConnection() async {
   try {
     final result = await InternetAddress.lookup(apiURL);
 
@@ -229,3 +269,6 @@ _checkInternetConnection() async {
     return false;
   }
 }
+}
+
+

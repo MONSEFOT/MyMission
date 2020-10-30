@@ -5,31 +5,35 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mymission_full_version/main.dart';
+import 'package:mymission_full_version/Controllers/Challenge/challenge_controller.dart';
+import 'package:mymission_full_version/Controllers/User/authentication.dart';
+import 'package:mymission_full_version/Models/Challenge/challenge.dart';
+import 'package:mymission_full_version/Models/User/user.dart';
+import 'package:mymission_full_version/Request/api_provider.dart';
+import 'package:mymission_full_version/Resources/string.dart';
 
 void main() async {
+  var body = {
+    'api_password' : api_password,
+    'social_id' : 'abdoumanou5@gmail.com',
+    'password' : 'monsef',
+  };
 
+  var response = await ApiProvider().post(login, body);
 
-  int a = 7 , z = 5;
+  String token = response['token'];
 
-  
+  print(token);
 
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  User user = await Authentication().findUserWithToken(token);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  if(user != null){
+    print(user.toMap());
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    List<Challenge> challenges = await ChallengeController().getTrandedChallenges(user);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+    challenges.forEach((element) {
+      print(element.toMap());
+    });
+  }
 }

@@ -66,12 +66,12 @@ class PanelUsersController extends ControllerMVC{
     if(owner.role == "owner"){
       var body = {
         "api_password": api_password,
-        "id": user.id.toString(),
+        "id": user.id,
         "display_name" : user.display_name,
         "social_id" : user.social_id,
         "password" : user.password,
         "role" : user.role,
-        "is_banned" : user.is_banned.toString(),
+        "is_banned" : user.is_banned,
       };
 
       Map<String , dynamic> response = await ApiProvider().post(updateUser, body, true , owner.token);
