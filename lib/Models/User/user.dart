@@ -42,8 +42,8 @@ class User {
         password: json['password'],
         role: json['role'],
         is_banned:  (json['is_banned'] == 1)? true : false,
-        created_at: dateTimeGenerate(json['created_at']),
-        updated_at: dateTimeGenerate(json['updated_at']),
+        created_at: Utils().dateTimeGenerate(json['created_at']),
+        updated_at: Utils().dateTimeGenerate(json['updated_at']),
 );
   }
 }

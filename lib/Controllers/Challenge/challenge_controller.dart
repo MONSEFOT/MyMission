@@ -7,6 +7,7 @@ import 'package:mymission_full_version/Models/Challenge/session.dart';
 import 'package:mymission_full_version/Models/User/user.dart';
 import 'package:mymission_full_version/Request/api_provider.dart';
 import 'package:mymission_full_version/Resources/string.dart';
+import 'package:mymission_full_version/Screens/Challenge/leaderboaed.dart';
 import 'package:mymission_full_version/Utils/utils.dart';
 
 class ChallengeController extends ControllerMVC {
@@ -18,8 +19,7 @@ class ChallengeController extends ControllerMVC {
       "user_id": user.id,
     };
 
-    var response =
-        await ApiProvider().post(createAChallenge, body, true, user.token);
+    var response = await ApiProvider().post(createAChallenge, body, true, user.token);
 
     if (response['challenge'] != null) {
       return Challenge.fromJson(response['challenge']);
@@ -28,16 +28,17 @@ class ChallengeController extends ControllerMVC {
 
   Future<Challenge> getChallenge(User user) async {
     var response = await ApiProvider().get(
-        '$getAChallenge?api_password=$api_password&user_id=${user.id}',
-        true,
-        user.token);
+      '$getAChallenge?api_password=$api_password&user_id=${user.id}',
+      true,
+      user.token,
+    );
 
     if (response['challenge'] != null) {
       return Challenge.fromJson(response['challenge']);
     }
   }
 
-  Future<bool> editChallengeInformation(User user, Challenge challenge) async {
+  Future<bool> updateChallenge(User user, Challenge challenge , [bool leaderBoardAdmin = false]) async {
     var body = {
       "api_password": api_password,
       "id": challenge.id,
@@ -46,12 +47,13 @@ class ChallengeController extends ControllerMVC {
       "points": challenge.points,
       "in_leader_board": challenge.in_leader_board,
       "is_verefied": challenge.is_verefied,
-      "created_at": challenge.created_at,
+      "created_at": challenge.created_at.toString(),
       "user_id": user.id,
+      "leaderBoardAdmin" : leaderBoardAdmin,
+
     };
 
-    var response =
-        await ApiProvider().post(updateAChallenge, body, true, user.token);
+    var response = await ApiProvider().post(updateAChallenge, body, true, user.token);
 
     if (response['updating']) {
       return true;
@@ -76,10 +78,10 @@ class ChallengeController extends ControllerMVC {
     return false;
   }
 
-  Future<List<Challenge>> getTrandedChallenges(User user, [int lastPoints = 0]) async {
+  Future<List<Challenge>> getTrandedChallenges(User user,[int lastId = 0 , int lastPoints = 0]) async {
     if (lastPoints > 0) {
       var response = await ApiProvider().get(
-          '$getTrandingChallenges?api_password=$api_password&last_points=$lastPoints',
+          '$getTrandingChallenges?api_password=$api_password&last_id=$lastId&last_points=$lastPoints',
           true,
           user.token);
 
@@ -90,48 +92,41 @@ class ChallengeController extends ControllerMVC {
         challenges.add(Challenge.fromJson(jsonChallenges[index]));
       }
 
-      if (challenges.isNotEmpty) {
+      if (challenges != null) {
         return challenges;
       }
     } else {
       var response = await ApiProvider().get(
-          '$getTrandingChallenges?api_password=$api_password&last_points=$lastPoints',
+          '$getTrandingChallenges?api_password=$api_password&last_id=$lastId&last_points=$lastPoints',
           true,
           user.token);
 
       List<Challenge> challenges = new List();
-      List<dynamic> jsonChallenges = response['challenges'];
+      List<dynamic> jsonChallenges = (response['challenges'] != null)? response['challenges'] : new List();
 
       for (int index = 0; index < jsonChallenges.length; index++) {
         challenges.add(Challenge.fromJson(jsonChallenges[index]));
       }
 
-      if (challenges.isNotEmpty) {
+      if (challenges != null) {
         return challenges;
       }
     }
   }
 
-  Future<Challenge> createSixtyDayChallenge(
-      User user, Challenge challenge) async {
+  Future<Challenge> createSixtyDayChallenge(User user, Challenge challenge) async {
     Challenge creatingChallenge;
     Session firstSession;
-    var baseTasksTitles = [
-      'sleep',
-      'meditation',
-      'learning',
-      'sport',
-      'your target',
-      'daily reward'
-    ];
     int tIndex = 0;
 
-    if (choosingTheFirstSession != null) {
-      await createChallenge(user, challenge)
-          .then((reChallenge) => creatingChallenge = reChallenge);
+    await createChallenge(user, challenge).then((challenge) =>
+        (challenge != null) ? creatingChallenge = challenge : null);
+
+    if (Utils().choosingTheFirstSession(creatingChallenge.id) != null) {
 
       await SessionController()
-          .createSession(user, choosingTheFirstSession(creatingChallenge.id))
+          .createSession(
+              user, Utils().choosingTheFirstSession(creatingChallenge.id))
           .then((session) => firstSession = session);
 
       while (tIndex < baseTasksTitles.length) {
@@ -140,7 +135,7 @@ class ChallengeController extends ControllerMVC {
             BaseTask(
                 title: baseTasksTitles[tIndex],
                 points: 0,
-                complete_state: false,
+                complete_status: false,
                 session_id: firstSession.id));
         if (result) {
           tIndex++;

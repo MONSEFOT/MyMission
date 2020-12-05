@@ -17,7 +17,6 @@ const TextStyle whiteText = TextStyle(
   fontSize: 12,
 );
 const Color bgColor = Colors.black;
-const Color accentColor = Colors.amber;
 
 const Color googleColor = Color(0xffdd4b39);
 const Color appleColor = Colors.grey;

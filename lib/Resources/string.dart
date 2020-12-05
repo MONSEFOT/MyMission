@@ -1,4 +1,4 @@
-const String apiURL = "http://127.0.0.1:8000/api/"; //"https://ghastly-footing.000webhostapp.com/public/api/";
+const String apiURL = "http://mymission.c1.biz/MyMissionAPI/public/api/";
 const String api_password = "xuqhBhc8KkajZbhHoViT";
 const String register = 'register';
 const String login = 'login';
@@ -23,3 +23,21 @@ const String getTrandingChallenges = 'getTrandingChallenges';
 const String tokenRegisterKey = "token";
 
 
+const String mymission = 'mymission';
+const String mymissionDescription = 'Welcome to My Mission The Sixty challenge app from The Game Of Life, This app will help you document your challenge Made by one of the game academy heros.';
+const String thaerChannel = 'https://www.youtube.com/channel/UCfLje18auyW9CG8YOBO4SDg';
+const String theGameMapsTutorial = 'https://www.youtube.com/watch?v=26bitPV3AyU&t=405s';
+const String create = 'create';
+const String update = 'update';
+const String owner = "owner";
+const String admin = "admin";
+const String hero = "hero";
+
+var baseTasksTitles = [
+      'sleep',
+      'meditation',
+      'learning',
+      'sport',
+      'your target',
+      'daily reward'
+    ];

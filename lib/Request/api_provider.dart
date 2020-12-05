@@ -93,7 +93,7 @@ class ApiProvider extends ControllerMVC {
       },
     );
     if(response.statusCode == 200){
-      Map<String , dynamic> result = jsonDecode(response.body);
+      var result =  jsonDecode(response.body);
       return result;
     }
     else{

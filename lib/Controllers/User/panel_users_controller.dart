@@ -24,10 +24,15 @@ class PanelUsersController extends ControllerMVC{
    *  in the response will return a list of users they containe a search key word in thier display_name column
    * } 
    */
-  Future<List<User>> search_for_users(User owner , String searchKeyWord) async {
-    if(owner.role == "owner"){
+  Future<List<User>> search_for_users(User theOwner , String searchingKeyWord) async {
+    if(theOwner.role == owner){
+      var body = {
+        "api_password" : api_password,
+        "display_name" : searchingKeyWord,
+        "with_social_id" : false,
+      };
       List<User> users = [];
-      Map<String , dynamic> response = await ApiProvider().get('$searchForUser?api_password=$api_password&display_name=$searchKeyWord&with_social_id=false' , true , owner.token);
+      Map<String , dynamic> response = await ApiProvider().post(searchForUser  , body, true , theOwner.token);
       
       List<dynamic> resultList = response['users'];
       for(int index = 0 ; index < resultList.length ; index++){
@@ -43,13 +48,13 @@ class PanelUsersController extends ControllerMVC{
    *  it takes two arguments the first is the owner and the second is the user that we will delete him
    *  the method will return true if the operation was done and false if isn't.      
    */
-  Future<bool> delete_user(User owner , int user_id )async{
-    if(owner.role == "owner"){
+  Future<bool> delete_user(User theOwner , int user_id )async{
+    if(theOwner.role == owner){
       var body = {
         "api_password": api_password,
         "user_id": user_id,
       };
-      Map<String , dynamic> response = await ApiProvider().post(deleteUser , body , true , owner.token);
+      Map<String , dynamic> response = await ApiProvider().post(deleteUser , body , true , theOwner.token);
       if(response['status'] == true){
         return true;
       }
@@ -62,8 +67,8 @@ class PanelUsersController extends ControllerMVC{
    * just pass an owner object with a token, and the user that he wants to ban him.
    * if the operation has done the method returns true and if not, it returns false    
    */
-  Future<bool> ban_user(User owner , User user)async {
-    if(owner.role == "owner"){
+  Future<bool> ban_user(User theOwner , User user)async {
+    if(theOwner.role == owner){
       var body = {
         "api_password": api_password,
         "id": user.id,
@@ -72,14 +77,34 @@ class PanelUsersController extends ControllerMVC{
         "password" : user.password,
         "role" : user.role,
         "is_banned" : user.is_banned,
+        "created_at" : user.created_at.toString(),
       };
 
-      Map<String , dynamic> response = await ApiProvider().post(updateUser, body, true , owner.token);
+      Map<String , dynamic> response = await ApiProvider().post(updateUser, body, true , theOwner.token);
       return (response['update'] == 1) ? true : false;
       
     }
     return false;
   }
 
+  Future<bool> update_role(User theOwner , User user) async {
+    if(theOwner.role == owner){
+      var body = {
+        "api_password": api_password,
+        "id": user.id,
+        "display_name" : user.display_name,
+        "social_id" : user.social_id,
+        "password" : user.password,
+        "role" : user.role,
+        "is_banned" : user.is_banned,
+        "created_at" : user.created_at.toString(),
+      };
+
+      Map<String , dynamic> response = await ApiProvider().post(updateUser, body, true , theOwner.token);
+      return (response['update'] == 1) ? true : false;
+      
+    }
+    return false;
+  }
   
 }

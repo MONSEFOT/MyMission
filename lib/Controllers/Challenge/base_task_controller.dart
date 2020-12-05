@@ -24,7 +24,7 @@ class BaseTaskController extends ControllerMVC{
     return false;
   }
 
-  Future<List<BaseTask>> getSessionBaseTasks(User user , int sessionId) async {
+  Future<List<BaseTask>> getTheSessionBaseTasks(User user , int sessionId) async {
     
     var response = await ApiProvider().get('$getABaseTasks?api_password=$api_password&session_id=$sessionId' , true , user.token);
 

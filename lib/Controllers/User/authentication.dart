@@ -3,11 +3,9 @@
  *that is many methods in the class some of them is private an some is globale.
  *you can authenticate with goole accoute or apple account in this app and the methods bellow is for that  
  */
-
-import 'dart:io';
-
 import 'package:apple_sign_in/apple_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:mymission_full_version/Models/User/user.dart';
@@ -16,28 +14,37 @@ import 'package:mymission_full_version/Resources/string.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Authentication extends ControllerMVC {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+  );
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   /*
    * this methods is for validete if the user registred in the database of not ,
    * using get api request with pass the social id of the firebase account 
    */
-  Future<User> userValidate(String socialID) async {
+  Future<User> userValidate(String socialID , String displayName) async {
     User user;
-    Map<String, dynamic> response = await ApiProvider().get("$searchForUser?api_password=$api_password&social_id=$socialID&with_social_id=" + true.toString());
+    var body = {
+      "api_password": api_password,
+      "with_social_id": true,
+      "social_id": socialID,
+      "display_name" : displayName,
+    };
+    Map<String, dynamic> response = await ApiProvider().post(searchForUser, body);
 
-    if(response['status'] == true){
+    if (response['status'] == true) {
       List<dynamic> resultList = response['users'];
 
-    
       for (int index = 0; index < resultList.length; index++) {
         user = User.fromJson(resultList[index]);
       }
 
       return user;
     }
-   
   }
 
   /*
@@ -51,7 +58,7 @@ class Authentication extends ControllerMVC {
         "password": user.uid,
       };
 
-      User rUser = await userValidate(user.email);
+      User rUser = await userValidate(user.email , user.displayName);
 
       Map<String, dynamic> response = await ApiProvider().post(login, body);
 
@@ -66,7 +73,7 @@ class Authentication extends ControllerMVC {
    *it takes three values into the request (display name , social id and the password)
    *using a post api request 
    */
-  Future<User>  userRegister(FirebaseUser user) async {
+  Future<User> userRegister(FirebaseUser user) async {
     if (user.displayName != null && user.email != null && user.uid != null) {
       var body = {
         "api_password": api_password,
@@ -94,7 +101,8 @@ class Authentication extends ControllerMVC {
    you shoulden't log in again   
    */
   Future<bool> _tokenRegister(String key, String token) async {
-    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
 
     bool isSaved = await sharedPreferences.setString(key, token);
 
@@ -102,7 +110,8 @@ class Authentication extends ControllerMVC {
   }
 
   Future<String> _getToken(String key) async {
-    final SharedPreferences sharedPreferences =  await SharedPreferences.getInstance();
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
 
     String token = await sharedPreferences.getString(key);
 
@@ -123,7 +132,8 @@ class Authentication extends ControllerMVC {
     };
     User user;
 
-    Map<String, dynamic> response = await ApiProvider().post(findAUserWithToken, body , true , token);
+    Map<String, dynamic> response =
+        await ApiProvider().post(findAUserWithToken, body, true, token);
 
     user = User.fromJson(response['user']);
 
@@ -142,7 +152,6 @@ class Authentication extends ControllerMVC {
       if (token != null) {
         User userDB = await findUserWithToken(token);
 
-
         if (userDB.token != null) {
           return userDB;
         }
@@ -153,58 +162,77 @@ class Authentication extends ControllerMVC {
   }
 
   // Determine if Apple SignIn is available
-  Future<bool> get appleSignInAvailable => AppleSignIn.isAvailable();
+  Future<User> signInWithApple({List<Scope> scopes = const []}) async {
+    FirebaseUser user;
+    // 1. perform the sign-in request
+    if (!await AppleSignIn.isAvailable()) {
+      return null; //Break from the program
+    }
 
-  /// Sign in with Apple
-  Future<User> appleIdSignIn() async {
-    User userDB;
-    try {
+    final AuthorizationResult result = await AppleSignIn.performRequests([
+      AppleIdRequest(requestedScopes: [Scope.email, Scope.fullName])
+    ]);
+    // 2. check the result
+    switch (result.status) {
+      case AuthorizationStatus.authorized:
+        {
+          final appleIdCredential = result.credential;
+          final oAuthProvider = OAuthProvider(providerId: 'apple.com');
+          final credential = oAuthProvider.getCredential(
+            idToken: String.fromCharCodes(appleIdCredential.identityToken),
+            accessToken:
+                String.fromCharCodes(appleIdCredential.authorizationCode),
+          );
+          final authResult = await _auth.signInWithCredential(credential);
+          user = authResult.user;
+          if (scopes.contains(Scope.fullName)) {
+            final updateUser = UserUpdateInfo();
+            updateUser.displayName =
+                '${appleIdCredential.fullName.givenName} ${appleIdCredential.fullName.familyName}';
+            await user.updateProfile(updateUser);
+          }
 
-      AuthorizationResult appleResult = await AppleSignIn.performRequests([
-        AppleIdRequest(requestedScopes: [Scope.email, Scope.fullName])
-      ]);
+          User userDB = await userValidate(user.email , user.displayName);
 
-      if (appleResult.error != null) {
-        // handle errors from Apple here
-        print(appleResult.error);
-      }
+          if (userDB == null) {
+            userDB = await userRegister(user);
 
-      final AuthCredential credential =
-          OAuthProvider(providerId: 'apple.com').getCredential(
-        accessToken:
-            String.fromCharCodes(appleResult.credential.authorizationCode),
-        idToken: String.fromCharCodes(appleResult.credential.identityToken),
-      );
+            if (userDB != null) {
+              _tokenRegister(tokenRegisterKey, userDB.token);
 
-      AuthResult firebaseResult = await _auth.signInWithCredential(credential);
-      FirebaseUser user = firebaseResult.user;
+              return userDB;
+            }
+          } else {
+            userDB = await userLogin(user);
 
-      userDB = await userValidate(user.email);
+            if (userDB != null) {
+              _tokenRegister(tokenRegisterKey, userDB.token);
 
-      if (userDB == null) {
-        userDB = await userRegister(user);
-
-        if (userDB != null) {
-          _tokenRegister(tokenRegisterKey, userDB.token);
-
-          return userDB;
+              return userDB;
+            }
+          }
         }
-      } else {
-        userDB = await userLogin(user);
-
-        if (userDB != null) {
-          _tokenRegister(tokenRegisterKey, userDB.token);
-
-          return userDB;
+        break;
+      case AuthorizationStatus.error:
+        {
+          print(result.error.toString());
+          throw PlatformException(
+            code: 'ERROR_AUTHORIZATION_DENIED',
+            message: result.error.toString(),
+          );
         }
-      }
-    } catch (error) {
-      throw error;
+      case AuthorizationStatus.cancelled:
+        {
+          throw PlatformException(
+            code: 'ERROR_ABORTED_BY_USER',
+            message: 'Sign in aborted by user',
+          );
+        }
     }
   }
 
   /// Sign in with google
-  Future<User> googleSignIn() async {
+  Future<User> signInWithGoogle() async {
     try {
       // hold the instance of the authenticated user
       FirebaseUser user; // flag to check whether we're signed in already
@@ -227,12 +255,11 @@ class Authentication extends ControllerMVC {
         user = (await _auth.signInWithCredential(credential)).user;
       }
 
-      User userDB = await userValidate(user.email);
+      User userDB = await userValidate(user.email , user.displayName);
 
       if (userDB == null) {
         userDB = await userRegister(user);
         if (userDB.token != null) {
-
           _tokenRegister(tokenRegisterKey, userDB.token);
 
           return userDB;
@@ -240,35 +267,23 @@ class Authentication extends ControllerMVC {
       } else {
         userDB = await userLogin(user);
         if (userDB.token != null) {
-          
           _tokenRegister(tokenRegisterKey, userDB.token);
-
 
           return userDB;
         }
       }
     } catch (error) {
-      throw error;
+       throw error;
     }
   }
 
-  Future<bool> logOut()async{
+  Future<bool> logOut() async {
     bool state = false;
-    await _auth.signOut().then((_) => state =  true);
+    await _googleSignIn.signOut();
+    await _auth.signOut().then((_){
+      _tokenRegister(tokenRegisterKey , "");
+      return state = true;
+    });
     return state;
   }
-
-  Future<bool> checkInternetConnection() async {
-  try {
-    final result = await InternetAddress.lookup(apiURL);
-
-    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-      return true;
-    }
-  } on SocketException catch (_) {
-    return false;
-  }
 }
-}
-
-
